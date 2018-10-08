@@ -257,14 +257,14 @@ extension JCMyInfoViewController: UINavigationControllerDelegate, UIImagePickerC
         picker.dismiss(animated: true, completion: nil)
     }
     
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         
-        var image = info[UIImagePickerControllerEditedImage] as! UIImage?
+        var image = info[UIImagePickerController.InfoKey.editedImage] as! UIImage?
         image = image?.fixOrientation()
         if image != nil {
             MBProgressHUD_JChat.showMessage(message: "正在上传", toView: view)
             
-            guard let imageData = UIImageJPEGRepresentation(image!, 0.8) else {
+            guard let imageData = image?.jpegData(compressionQuality: 0.8) else {
                 return
             }
             

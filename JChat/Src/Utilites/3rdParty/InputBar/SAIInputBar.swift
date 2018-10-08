@@ -356,9 +356,9 @@ open class SAIInputBar: UIView {
         let center = NotificationCenter.default
         
         // keyboard
-        center.addObserver(self, selector:#selector(ntf_keyboard(willShow:)), name:NSNotification.Name.UIKeyboardWillShow, object:nil)
-        center.addObserver(self, selector:#selector(ntf_keyboard(willHide:)), name:NSNotification.Name.UIKeyboardWillHide, object:nil)
-        
+        center.addObserver(self, selector:#selector(ntf_keyboard(willShow:)), name:UIResponder.keyboardWillShowNotification, object:nil)
+        center.addObserver(self, selector:#selector(ntf_keyboard(willHide:)), name:UIResponder.keyboardWillHideNotification, object:nil)
+
         // accessory
         center.addObserver(self, selector: #selector(ntf_accessory(didChangeFrame:)), name: NSNotification.Name(rawValue: SAIAccessoryDidChangeFrameNotification), object: nil)
     }
@@ -529,7 +529,7 @@ extension SAIInputBar {
             return
         }
         _ntf_animation(sender) { bf, ef in
-            let ef1 = UIEdgeInsetsInsetRect(window.frame, UIEdgeInsetsMake(ef.minY, 0, 0, 0))
+            let ef1 = window.frame.inset(by: UIEdgeInsets(top: ef.minY, left: 0, bottom: 0, right: 0))
             _updateSystemKeyboard(ef1.size, animated: false)
             
             _displayable?.ib_inputBar(self, showWithFrame: _frameInWindow)
@@ -540,7 +540,7 @@ extension SAIInputBar {
             return
         }
         _ntf_animation(sender) { bf, ef in
-            let ef1 = UIEdgeInsetsInsetRect(window.frame, UIEdgeInsetsMake(ef.minY, 0, 0, 0))
+            let ef1 = window.frame.inset(by: UIEdgeInsets(top: ef.minY, left: 0, bottom: 0, right: 0))
             
             _cacheSystemKeyboardSize = ef1.size
 //            _updateSystemKeyboard(ef1.size, animated: false)
@@ -611,21 +611,21 @@ extension SAIInputBar {
         _displayable?.ib_inputBar(self, didChangeFrame: _frameInWindow)
     }
     
-    private func _ntf_flatMap(_ ntf: Notification, handler: (CGRect, CGRect, TimeInterval, UIViewAnimationCurve) -> ()) {
+    private func _ntf_flatMap(_ ntf: Notification, handler: (CGRect, CGRect, TimeInterval, UIView.AnimationCurve) -> ()) {
         guard let u = (ntf as NSNotification).userInfo,
-            let bf = (u[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue,
-            let ef = (u[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue,
-            let cv = (u[UIKeyboardAnimationCurveUserInfoKey] as? Int),
-            let dr = (u[UIKeyboardAnimationDurationUserInfoKey] as? TimeInterval) else {
+            let bf = (u[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue,
+            let ef = (u[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue,
+            let cv = (u[UIResponder.keyboardAnimationCurveUserInfoKey] as? Int),
+            let dr = (u[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval) else {
                 return
         }
-        let edg = UIEdgeInsetsMake(intrinsicContentSize.height, 0, 0, 0)
+        let edg = UIEdgeInsets(top: intrinsicContentSize.height, left: 0, bottom: 0, right: 0)
         
         // rect correction
-        let bf1 = UIEdgeInsetsInsetRect(bf, edg)
-        let ef1 = UIEdgeInsetsInsetRect(ef, edg)
+        let bf1 = bf.inset(by: edg)
+        let ef1 = ef.inset(by: edg)
         
-        let cv1 = UIViewAnimationCurve(rawValue: cv) ?? _SAInputDefaultAnimateCurve
+        let cv1 = UIView.AnimationCurve(rawValue: cv) ?? _SAInputDefaultAnimateCurve
         
         handler(bf1, ef1, dr, cv1)
     }
@@ -1003,7 +1003,7 @@ internal func SAIInputBarLoad() {
 }
 
 @inline(__always)
-internal func _SAInputLayoutConstraintMake(_ item: AnyObject, _ attr1: NSLayoutAttribute, _ related: NSLayoutRelation, _ toItem: AnyObject? = nil, _ attr2: NSLayoutAttribute = .notAnAttribute, _ constant: CGFloat = 0, _ multiplier: CGFloat = 1, output: UnsafeMutablePointer<NSLayoutConstraint?>? = nil) -> NSLayoutConstraint {
+internal func _SAInputLayoutConstraintMake(_ item: AnyObject, _ attr1: NSLayoutConstraint.Attribute, _ related: NSLayoutConstraint.Relation, _ toItem: AnyObject? = nil, _ attr2: NSLayoutConstraint.Attribute = .notAnAttribute, _ constant: CGFloat = 0, _ multiplier: CGFloat = 1, output: UnsafeMutablePointer<NSLayoutConstraint?>? = nil) -> NSLayoutConstraint {
     
     let c = NSLayoutConstraint(item:item, attribute:attr1, relatedBy:related, toItem:toItem, attribute:attr2, multiplier:multiplier, constant:constant)
     if output != nil {
@@ -1044,7 +1044,7 @@ private var _SAInputUIResponderNextResponderOverride = "_SAInputUIResponderNextR
 
 
 internal var _SAInputDefaultAnimateDuration: TimeInterval = 0.25
-internal var _SAInputDefaultAnimateCurve: UIViewAnimationCurve = UIViewAnimationCurve(rawValue: 7) ?? .easeInOut
+internal var _SAInputDefaultAnimateCurve: UIView.AnimationCurve = UIView.AnimationCurve(rawValue: 7) ?? .easeInOut
 
 internal var _SAInputDefaultTextFieldBackgroundImage: UIImage? = {
     // 生成默认图片
@@ -1064,6 +1064,6 @@ internal var _SAInputDefaultTextFieldBackgroundImage: UIImage? = {
     
     UIGraphicsEndImageContext()
     
-    return image?.resizableImage(withCapInsets: UIEdgeInsetsMake(radius, radius, radius, radius))
+    return image?.resizableImage(withCapInsets: UIEdgeInsets(top: radius, left: radius, bottom: radius, right: radius))
 }()
 

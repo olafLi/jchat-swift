@@ -54,7 +54,7 @@ class JCConversationListViewController: UIViewController {
         tableview.separatorStyle = .none
         return tableview
     }()
-    fileprivate lazy var errorTips: JCNetworkTipsCell = JCNetworkTipsCell()
+    fileprivate lazy var errorTips: JCNetworkTipsCell = JCNetworkTipsCell(style: .default, reuseIdentifier: "errorTips")
     fileprivate var showNetworkTips = false
     fileprivate lazy var emptyView: UIView = {
         let view = UIView(frame: CGRect(x: 0, y: 64 + 36, width: self.view.width, height: self.view.height - 64 - 36))

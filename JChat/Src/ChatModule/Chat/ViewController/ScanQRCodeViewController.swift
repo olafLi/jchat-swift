@@ -49,7 +49,7 @@ class ScanQRCodeViewController: UIViewController {
         tipsLabel.textColor = UIColor(netHex: 0x6EF8F8)
         view.addSubview(tipsLabel)
         
-        NotificationCenter.default.addObserver(self, selector: #selector(startQRCAnimate), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(startQRCAnimate), name: UIApplication.didBecomeActiveNotification, object: nil)
     }
     
     var qrcLine: UIImageView!

@@ -52,12 +52,12 @@ class JCChatViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillChangeFrame, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardFrameChanged(_:)), name: NSNotification.Name.UIKeyboardWillChangeFrame, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardFrameChanged(_:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
         if let group = conversation.target as? JMSGGroup {
             self.title = group.displayName()
         }
@@ -115,7 +115,7 @@ class JCChatViewController: UIViewController {
     fileprivate lazy var _emoticonSendBtn: UIButton = {
         var button = UIButton()
         button.titleLabel?.font = UIFont.systemFont(ofSize: 15)
-        button.contentEdgeInsets = UIEdgeInsetsMake(0, 10 + 8, 0, 8)
+        button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 10 + 8, bottom: 0, right: 8)
         button.setTitle("发送", for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.setBackgroundImage(UIImage.loadImage("chat_emoticon_btn_send_blue"), for: .normal)
@@ -188,7 +188,7 @@ class JCChatViewController: UIViewController {
         
         _updateBadge()
         
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardFrameChanged(_:)), name: NSNotification.Name.UIKeyboardWillChangeFrame, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardFrameChanged(_:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(_removeAllMessage), name: NSNotification.Name(rawValue: kDeleteAllMessage), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(_reloadMessage), name: NSNotification.Name(rawValue: kReloadAllMessage), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(_updateFileMessage(_:)), name: NSNotification.Name(rawValue: kUpdateFileMessage), object: nil)
@@ -355,7 +355,7 @@ class JCChatViewController: UIViewController {
         messageContent.delegate = self
         let message = JCMessage(content: messageContent)
         
-        let content = JMSGImageContent(imageData: UIImagePNGRepresentation(image)!)
+        let content = JMSGImageContent(imageData: image.pngData()!)
         let msg = JMSGMessage.ex.createMessage(conversation, content!, nil)
         msg.ex.isLargeEmoticon = true
         message.options.showsTips = true
@@ -363,8 +363,8 @@ class JCChatViewController: UIViewController {
     }
     
     func send(forImage image: UIImage) {
-        let data = UIImageJPEGRepresentation(image, 1.0)!
-        let content = JMSGImageContent(imageData: data)
+        let data = image.jpegData(compressionQuality: 1.0)
+        let content = JMSGImageContent(imageData: data!)
 
         let message = JMSGMessage.ex.createMessage(conversation, content!, nil)
         let imageContent = JCMessageImageContent()
@@ -416,9 +416,9 @@ class JCChatViewController: UIViewController {
     
     @objc func keyboardFrameChanged(_ notification: Notification) {
         let dic = NSDictionary(dictionary: (notification as NSNotification).userInfo!)
-        let keyboardValue = dic.object(forKey: UIKeyboardFrameEndUserInfoKey) as! NSValue
+        let keyboardValue = dic.object(forKey: UIResponder.keyboardFrameEndUserInfoKey) as! NSValue
         let bottomDistance = UIScreen.main.bounds.size.height - keyboardValue.cgRectValue.origin.y
-        let duration = Double(dic.object(forKey: UIKeyboardAnimationDurationUserInfoKey) as! NSNumber)
+        let duration = Double(dic.object(forKey: UIResponder.keyboardAnimationDurationUserInfoKey) as! NSNumber)
         
         UIView.animate(withDuration: duration, animations: {
         }) { (finish) in
@@ -613,7 +613,7 @@ extension JCChatViewController: JCEmoticonInputViewDataSource, JCEmoticonInputVi
     }
 
     open func emoticon(_ emoticon: JCEmoticonInputView, insetForGroupAt index: Int) -> UIEdgeInsets {
-        return UIEdgeInsetsMake(12, 10, 12 + 24, 10)
+        return UIEdgeInsets(top: 12, left: 10, bottom: 12 + 24, right: 10)
     }
 
     open func emoticon(_ emoticon: JCEmoticonInputView, didSelectFor item: JCEmoticon) {
@@ -657,7 +657,7 @@ extension JCChatViewController: SAIToolboxInputViewDataSource, SAIToolboxInputVi
         return 4
     }
     open func toolbox(_ toolbox: SAIToolboxInputView, insetForSectionAt index: Int) -> UIEdgeInsets {
-        return UIEdgeInsetsMake(12, 10, 12, 10)
+        return UIEdgeInsets(top: 12, left: 10, bottom: 12, right: 10)
     }
     open func toolbox(_ toolbox: SAIToolboxInputView, shouldSelectFor item: SAIToolboxItem) -> Bool {
         return true
@@ -737,14 +737,14 @@ extension JCChatViewController: YHPhotoPickerViewControllerDelegate, UINavigatio
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         picker.dismiss(animated: true, completion: nil)
     }
-    
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         picker.dismiss(animated: true, completion: nil)
-        let image = info[UIImagePickerControllerOriginalImage] as! UIImage?
+        let image = info[UIImagePickerController.InfoKey.originalImage] as! UIImage?
         if let image = image?.fixOrientation() {
             send(forImage: image)
         }
-        let videoUrl = info[UIImagePickerControllerMediaURL] as! URL?
+        let videoUrl = info[UIImagePickerController.InfoKey.mediaURL] as! URL?
         if videoUrl != nil {
             let data = try! Data(contentsOf: videoUrl!)
             send(fileData: data)

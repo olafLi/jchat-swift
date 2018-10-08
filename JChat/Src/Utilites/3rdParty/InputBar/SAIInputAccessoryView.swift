@@ -308,10 +308,10 @@ internal class SAIInputAccessoryView: UIView {
         _textField.scrollsToTop = false
         _textField.returnKeyType = .send
         _textField.backgroundColor = .clear
-        _textField.scrollIndicatorInsets = UIEdgeInsetsMake(2, 0, 2, 0)
+        _textField.scrollIndicatorInsets = UIEdgeInsets(top: 2, left: 0, bottom: 2, right: 0)
         _textField.translatesAutoresizingMaskIntoConstraints = false
         _textField.backgroundView.translatesAutoresizingMaskIntoConstraints = false
-        _textField.typingAttributes[NSAttributedStringKey.paragraphStyle.rawValue] = {
+        _textField.typingAttributes[NSAttributedString.Key.paragraphStyle] = {
             let style = NSMutableParagraphStyle()
             style.lineBreakMode = .byCharWrapping
             return style

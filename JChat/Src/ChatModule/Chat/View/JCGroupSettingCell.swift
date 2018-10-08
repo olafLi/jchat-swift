@@ -22,7 +22,7 @@ public class JCGroupSettingCell: UITableViewCell {
     
     var group: JMSGGroup!
     
-    convenience init(style: UITableViewCellStyle, reuseIdentifier: String?, group: JMSGGroup) {
+    convenience init(style: UITableViewCell.CellStyle, reuseIdentifier: String?, group: JMSGGroup) {
         self.init(style: style, reuseIdentifier: reuseIdentifier)
         self.group = group
         _init()

@@ -104,32 +104,36 @@ extension GroupAvatorViewController: UINavigationControllerDelegate, UIImagePick
         picker.dismiss(animated: true, completion: nil)
     }
 
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
 
-        var image = info[UIImagePickerControllerEditedImage] as! UIImage?
-        image = image?.fixOrientation()
-        if image != nil {
-            MBProgressHUD_JChat.showMessage(message: "正在上传", toView: view)
-
-            guard let imageData = UIImageJPEGRepresentation(image!, 0.8) else {
-                return
-            }
-            let info = JMSGGroupInfo()
-            info.avatarData = imageData
-            JMSGGroup.updateInfo(withGid: group.gid, groupInfo: info, completionHandler: { (result, error) in
-                DispatchQueue.main.async(execute: { () -> Void in
-                    MBProgressHUD_JChat.hide(forView: self.view, animated: true)
-                    if error == nil {
-                        MBProgressHUD_JChat.show(text: "上传成功", view: self.view)
-                        self.imageView.image = image
-                        NotificationCenter.default.post(name: NSNotification.Name(rawValue: kUpdateGroupInfo), object: nil)
-                    } else {
-                        MBProgressHUD_JChat.show(text: "上传失败", view: self.view)
-                    }
-                })
-            })
+        defer {
+            picker.dismiss(animated: true, completion: nil)
         }
 
-        picker.dismiss(animated: true, completion: nil)
+        guard let editedImage = info[UIImagePickerController.InfoKey.editedImage] as? UIImage else { return }
+
+        let image = editedImage.fixOrientation()
+
+        MBProgressHUD_JChat.showMessage(message: "正在上传", toView: view)
+
+        guard let imageData = image.jpegData(compressionQuality: 0.8) else {
+            return
+        }
+
+        let info = JMSGGroupInfo()
+        info.avatarData = imageData
+        JMSGGroup.updateInfo(withGid: group.gid, groupInfo: info, completionHandler: { (result, error) in
+            DispatchQueue.main.async(execute: { () -> Void in
+                MBProgressHUD_JChat.hide(forView: self.view, animated: true)
+                if error == nil {
+                    MBProgressHUD_JChat.show(text: "上传成功", view: self.view)
+                    self.imageView.image = image
+                    NotificationCenter.default.post(name: NSNotification.Name(rawValue: kUpdateGroupInfo), object: nil)
+                } else {
+                    MBProgressHUD_JChat.show(text: "上传失败", view: self.view)
+                }
+            })
+        })
+
     }
 }

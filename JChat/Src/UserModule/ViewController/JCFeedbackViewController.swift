@@ -87,7 +87,7 @@ class JCFeedbackViewController: UIViewController {
             JMSGMessage.send(message, optionalContent: JMSGOptionalContent.ex.default)
         }
         images.forEach { (image) in
-            let content = JMSGImageContent(imageData: UIImageJPEGRepresentation(image, 1.0)!)
+            let content = JMSGImageContent(imageData: image.jpegData(compressionQuality: 1.0)!)
             let message = JMSGMessage.createSingleMessage(with: content!, username: "feedback_ios")
             JMSGMessage.send(message, optionalContent: JMSGOptionalContent.ex.default)
         }

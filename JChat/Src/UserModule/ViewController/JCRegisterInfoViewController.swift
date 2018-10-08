@@ -163,7 +163,7 @@ class JCRegisterInfoViewController: UIViewController {
     
     private func uploadImage() {
         if let image = image {
-            let imageData = UIImageJPEGRepresentation(image, 0.8)
+            let imageData = image.jpegData(compressionQuality: 0.8)
             JMSGUser.updateMyInfo(withParameter: imageData!, userFieldType: .fieldsAvatar, completionHandler: { (result, error) in
                 if error == nil {
                     let avatorData = NSKeyedArchiver.archivedData(withRootObject: imageData!)
@@ -206,10 +206,10 @@ extension JCRegisterInfoViewController: UINavigationControllerDelegate, UIImageP
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         picker.dismiss(animated: true, completion: nil)
     }
-    
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         
-        var image = info[UIImagePickerControllerOriginalImage] as! UIImage?
+        var image = info[UIImagePickerController.InfoKey.originalImage] as! UIImage?
         image = image?.fixOrientation()
         self.image = image
         avatorView.image = image

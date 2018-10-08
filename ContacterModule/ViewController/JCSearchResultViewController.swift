@@ -172,7 +172,7 @@ class JCSearchResultViewController: UIViewController {
             tableView.isHidden = true
             
             let attr = NSMutableAttributedString(string: "没有搜到 ")
-            let attrSearchString = NSAttributedString(string: searchString, attributes: [ NSAttributedStringKey.foregroundColor : UIColor(netHex: 0x2dd0cf), NSAttributedStringKey.font : UIFont.boldSystemFont(ofSize: 16.0)])
+            let attrSearchString = NSAttributedString(string: searchString, attributes: [ NSAttributedString.Key.foregroundColor : UIColor(netHex: 0x2dd0cf), NSAttributedString.Key.font : UIFont.boldSystemFont(ofSize: 16.0)])
             
             attr.append(attrSearchString)
             attr.append(NSAttributedString(string:  " 相关的信息"))
